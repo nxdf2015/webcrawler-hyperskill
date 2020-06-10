@@ -73,17 +73,20 @@ public class LinksControl extends Observable {
 
 
             String link = matcher.group(2);
-            int id = baseUrl.lastIndexOf("/");
+            URL url = null ;
+            try {
+                  url = new URL(baseUrl);
+            } catch (MalformedURLException e) {
 
-            int idProtocol = baseUrl.indexOf(":");
-            String protocol = baseUrl.substring(0,idProtocol+1);
-            String base= baseUrl.substring(0,id);
+            }
 
+            String protocol = url.getProtocol();
+            String base = url.getHost();
 
             if (!isValidUrl(link)) {
 
                 if(link.startsWith("//")){
-                    link = protocol + link;
+                    link = protocol +":"+ link;
                 }
                 if(link.startsWith("/")){
                     link = base + link;
