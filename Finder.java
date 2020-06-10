@@ -52,8 +52,8 @@ public class Finder {
         return Optional.empty();
     }
 
-    private Optional<String>  findTitle(String page){
-        Pattern titlePattern = Pattern.compile("<title>(.+)</title>",Pattern.CASE_INSENSITIVE);
+    public Optional<String>  findTitle(String page){
+        Pattern titlePattern = Pattern.compile("<\\s*title\\s*>(.+?)</\\s*title\\s*>",Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = titlePattern.matcher(page);
         if (matcher.find()) {
@@ -67,18 +67,25 @@ public class Finder {
 
     }
 
-    private Optional<String> getPage()   {
+    public Optional<String> getPage()   {
+
 
         URLConnection connection = null;
         try {
             connection = new URL(url).openConnection();
+        } catch (MalformedURLException e) {
+            return Optional.empty();
         } catch (IOException e) {
+            e.printStackTrace();
             return Optional.empty();
         }
-        System.out.println(url);
+
+        if (connection == null)
+            return Optional.empty();
         if(!connection.getContentType().contains("text/html")){
             return Optional.empty();
         }
+
         InputStream in = null;
         try {
             in = connection.getInputStream();
@@ -90,14 +97,15 @@ public class Finder {
         StringBuilder builder = new StringBuilder();
         while(true){
             try {
-                if (!((line = reader.readLine()) != null)) break;
+                if (((line = reader.readLine()) == null)) break;
             } catch (IOException e) {
                 return Optional.empty();
             }
             builder.append(line);
-
+            builder.append(System.lineSeparator());
         }
 
         return Optional.of(builder.toString());
+
     }
 }

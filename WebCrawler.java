@@ -34,8 +34,10 @@ public class WebCrawler extends JFrame implements Observer {
         controlPanel.setTextEmitter( e -> {
 
             try {
-//                linksPanel.reset();
-//                tablePanel.reset();
+
+
+                linksPanel.reset();
+                tablePanel.reset();
                 linksControl.search(e);
 
 

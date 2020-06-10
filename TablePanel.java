@@ -25,7 +25,7 @@ public class TablePanel extends JPanel {
         table.setEnabled(false);
 
         add(table.getTableHeader(),BorderLayout.NORTH);
-        add(table,BorderLayout.CENTER);
+        add(new JScrollPane(table),BorderLayout.CENTER);
 
     }
 

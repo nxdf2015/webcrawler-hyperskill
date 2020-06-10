@@ -2,6 +2,7 @@ package crawler;
 
 import javafx.beans.InvalidationListener;
 
+import javafx.concurrent.Worker;
 import kotlin.jvm.Synchronized;
 
 import javax.swing.*;
@@ -28,66 +29,38 @@ import static crawler.DataType.*;
 
 public class LinksControl extends Observable {
 
-
+    private List<SwingWorker<EntityUrl,EntityUrl>> workers ;
     private String baseUrl;
     private String protocol = "https";
+    private boolean cancel = false;
+
     public LinksControl() {
         super();
+        workers = new ArrayList<>();
     }
 
 
     public void search(String url) throws IOException {
+        cancel = false;
         baseUrl = "index.html";
-        Optional<String> page = getPage(url);
+        Finder finder = new Finder(url);
+
+        Optional<String> page = finder.getPage();
+
         if (page.isEmpty())
             return;
 
-        String title = findTitle(page.get());
+        Optional<String> title = finder.findTitle(page.get());
+        if (title.isEmpty())
+            return;
         setChanged();
 
-        notifyObservers(new Payload(TITLE,title));
+        notifyObservers(new Payload(TITLE,title.get()));
 
         setChanged();
-        notifyObservers(new EntityUrl(url,title));
+        notifyObservers(new EntityUrl(url,title.get()));
 
         findLinks(page.get());
-    }
-
-
-    public Optional<String> getPage(String url) throws IOException {
-       try(InputStream inputStream = new URL(url).openStream();
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(inputStream, StandardCharsets.UTF_8)
-        );) {
-
-           StringBuilder builder = new StringBuilder();
-           String line;
-
-           while ((line = reader.readLine()) != null) {
-               builder.append(line);
-               builder.append(System.lineSeparator());
-           }
-
-           String result = builder.toString();
-           findTitle(result);
-           return Optional.of(result);
-       }
-       catch (MalformedURLException e){
-           return Optional.empty();
-       }
-    }
-
-
-
-    public String  findTitle(String page) {
-        Pattern titlePattern = Pattern.compile("<title>(.+)</title>", Pattern.CASE_INSENSITIVE);
-
-        Matcher matcher = titlePattern.matcher(page);
-        String title = null;
-        if (matcher.find()) {
-              title = matcher.group(1).trim();
-           }
-       return title;
     }
 
 
@@ -98,9 +71,13 @@ public class LinksControl extends Observable {
         Pattern linkPattern = Pattern.compile("<a.*\\s+href=(\"|\')(.+?)\\1\\s*.*>");
         Matcher matcher = linkPattern.matcher(page);
         List<String> results = new ArrayList<>();
-        while (matcher.find()) {
-            String link = matcher.group(2);
 
+        while (matcher.find()) {
+
+            if (cancel){
+                return;
+            }
+            String link = matcher.group(2);
             if (!isValidUrl(link)){
 
                 if(link.endsWith(".html")){
@@ -114,10 +91,10 @@ public class LinksControl extends Observable {
                     link = protocol +"://"+ link;
                 }
             }
-
+            System.out.println(link);
             FinderWorker worker = new FinderWorker(link);
             worker.execute();
-
+            workers.add(worker);
         }
 
 
@@ -125,6 +102,10 @@ public class LinksControl extends Observable {
 
     private boolean isValidUrl(String link) {
         return Pattern.matches("https?://.+",link);
+    }
+
+    public void cancelAll() {
+        cancel = true;
     }
 
 
@@ -141,12 +122,14 @@ public class LinksControl extends Observable {
         @Override
         protected EntityUrl doInBackground() throws Exception {
 
-            Optional<String> result =  finder.run();
-            if (result.isPresent()){
-               return new EntityUrl(url,result.get());
-            }
-            return null;
+                Optional<String> result = finder.run();
+                if (result.isPresent()) {
+                    return new EntityUrl(url, result.get());
+                }
+
+                return null;
         }
+
 
 
         @Override
