@@ -31,8 +31,6 @@ public class LinksControl extends Observable {
 
     private List<SwingWorker<EntityUrl,EntityUrl>> workers ;
     private String baseUrl;
-    private String protocol = "https";
-    private boolean cancel = false;
 
     public LinksControl() {
         super();
@@ -41,8 +39,8 @@ public class LinksControl extends Observable {
 
 
     public void search(String url) throws IOException {
-        cancel = false;
-        baseUrl = "index.html";
+
+        baseUrl =url ;
         Finder finder = new Finder(url);
 
         Optional<String> page = finder.getPage();
@@ -54,8 +52,7 @@ public class LinksControl extends Observable {
         if (title.isEmpty())
             return;
         setChanged();
-
-        notifyObservers(new Payload(TITLE,title.get()));
+        notifyObservers(new Payload(TITLE,title.get().trim()));
 
         setChanged();
         notifyObservers(new EntityUrl(url,title.get()));
@@ -74,24 +71,29 @@ public class LinksControl extends Observable {
 
         while (matcher.find()) {
 
-            if (cancel){
-                return;
-            }
-            String link = matcher.group(2);
-            if (!isValidUrl(link)){
 
-                if(link.endsWith(".html")){
-                    int id = baseUrl.lastIndexOf("/");
-                    link =  baseUrl.substring(0,id+1) + link;
+            String link = matcher.group(2);
+            int id = baseUrl.lastIndexOf("/");
+
+            int idProtocol = baseUrl.indexOf(":");
+            String protocol = baseUrl.substring(0,idProtocol+1);
+            String base= baseUrl.substring(0,id);
+
+
+            if (!isValidUrl(link)) {
+
+                if(link.startsWith("//")){
+                    link = protocol + link;
                 }
-                if (link.startsWith("//")){
-                    link = protocol +":"+ link;
+                if(link.startsWith("/")){
+                    link = base + link;
                 }
-                else if (!link.startsWith("http://") || !link.startsWith("https://") ) {
-                    link = protocol +"://"+ link;
+                else if(link.indexOf("/") == -1){
+                    link = base + "/" + link;
                 }
+
             }
-            System.out.println(link);
+
             FinderWorker worker = new FinderWorker(link);
             worker.execute();
             workers.add(worker);
@@ -101,12 +103,10 @@ public class LinksControl extends Observable {
     }
 
     private boolean isValidUrl(String link) {
-        return Pattern.matches("https?://.+",link);
+        return link.startsWith("http://") || link.startsWith("https://") ;
     }
 
-    public void cancelAll() {
-        cancel = true;
-    }
+
 
 
     class FinderWorker extends SwingWorker<EntityUrl,EntityUrl> {
@@ -123,7 +123,9 @@ public class LinksControl extends Observable {
         protected EntityUrl doInBackground() throws Exception {
 
                 Optional<String> result = finder.run();
+
                 if (result.isPresent()) {
+
                     return new EntityUrl(url, result.get());
                 }
 
@@ -140,7 +142,7 @@ public class LinksControl extends Observable {
                 EntityUrl entityUrl = get();
                 if (entityUrl !=null) {
                     setChanged();
-                    notifyObservers(get());
+                    notifyObservers(entityUrl);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

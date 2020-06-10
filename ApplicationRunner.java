@@ -1,10 +1,16 @@
 package crawler;
 
 
+import javax.swing.*;
+
 public class ApplicationRunner {
     public static void main(String[] args) {
 
-   new WebCrawler();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new WebCrawler();            }
+        });
 
 
 
