@@ -39,8 +39,6 @@ public class LinksControl extends Observable {
 
 
     public void search(String url) throws IOException {
-//        setChanged();
-//        notifyObservers(new Payload(TITLE,"Example Domain"));
 
         baseUrl =url ;
         Finder finder = new Finder(url);

@@ -28,22 +28,6 @@ public class Finder {
 
         return getHeader(url);
 
-//             Optional<String> result = getPage();
-//
-//             if (result.isPresent()){
-//                 String page = result.get();
-//                  Optional<String> titleResult  = findTitle(page);
-//                  String title = null;
-//                  if(titleResult.isPresent()){
-//                        title = titleResult.get();
-//                        return Optional.of(title);
-//                  }
-//
-//
-//             }
-//
-
-
     }
 
     public Optional<InputStream> connect(String url) {
