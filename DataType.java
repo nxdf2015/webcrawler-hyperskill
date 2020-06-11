@@ -4,5 +4,5 @@ public enum DataType {
     PAGE,
     TITLE,
     ENTITY,
-    INFO
+    COMPLETE
 }

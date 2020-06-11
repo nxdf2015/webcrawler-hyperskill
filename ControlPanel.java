@@ -32,7 +32,7 @@ public class ControlPanel extends JPanel {
         urlBtn.addActionListener(null);
         urlBtn.setName("RunButton");
         urlBtn.addActionListener(e -> {
-            label.setText("button click!");
+
             if (textEmitter!=null)
                 textEmitter.send(input.getText());
         });

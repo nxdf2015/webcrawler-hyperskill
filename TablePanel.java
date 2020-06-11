@@ -3,6 +3,11 @@ package crawler;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 public class TablePanel extends JPanel {
 
@@ -42,5 +47,17 @@ public class TablePanel extends JPanel {
     public void reset() {
         tableModel.reset();
         tableModel.refresh();
+    }
+
+    public void save(String nameFile) {
+        List<EntityUrl> rows = tableModel.getData();
+        try(PrintWriter writer = new PrintWriter(new FileWriter(new File(nameFile)))){
+            for(EntityUrl row : rows){
+                writer.println(row.getUrl());
+                writer.println(row.getTitle());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -9,6 +9,7 @@ import java.util.Observer;
 public class WebCrawler extends JFrame implements Observer {
     private final LinksPanel linksPanel;
     private final TablePanel tablePanel;
+    private final ExportPanel exportPanel;
     private JTextField input;
     private JTextArea textArea;
     private String[] labelColumns = { "URL" , "Title"};
@@ -68,13 +69,23 @@ public class WebCrawler extends JFrame implements Observer {
 
         add(tablePanel,c);
 
-
-
+         exportPanel = new ExportPanel();
+         exportPanel.setEmitter(new TextEmitter() {
+             @Override
+             public void send(String nameFile) {
+                 saveTable(nameFile);
+             }
+         });
+        c.gridx = 0;
+        c.gridy= 8;
+        c.gridheight=1;
+        add(exportPanel ,c );
         setVisible(true);
     }
 
-
-
+    private void saveTable(String nameFile) {
+        tablePanel.save(nameFile);
+    }
 
 
     @Override
@@ -85,6 +96,9 @@ public class WebCrawler extends JFrame implements Observer {
            Payload payload = (Payload) o;
            if (payload.getDataType() == DataType.TITLE) {
                linksPanel.setTitle(payload.getData());
+           }
+           else if(payload.getDataType() == DataType.COMPLETE){
+               exportPanel.toggleButton(true);
            }
 
        }

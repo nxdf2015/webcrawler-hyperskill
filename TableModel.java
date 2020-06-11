@@ -23,6 +23,10 @@ public class TableModel  extends AbstractTableModel {
         }
     }
 
+    public List<EntityUrl> getData(){
+        return data;
+    }
+
 
 
 

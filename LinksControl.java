@@ -110,6 +110,7 @@ public class LinksControl extends Observable {
             worker.execute();
 
         }
+        notifyObservers(new Payload(COMPLETE));
 
 
     }

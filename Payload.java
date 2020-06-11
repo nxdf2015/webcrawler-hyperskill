@@ -12,7 +12,9 @@ public class Payload  {
         this.data = value;
     }
 
-
+    public Payload(DataType type) {
+        this.dataType = type;
+    }
 
 
     public DataType getDataType() {
