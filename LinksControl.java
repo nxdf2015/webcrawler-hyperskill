@@ -29,24 +29,29 @@ import static crawler.DataType.*;
 
 public class LinksControl extends Observable {
 
-    private List<SwingWorker<EntityUrl,EntityUrl>> workers ;
+
     private String baseUrl;
 
     public LinksControl() {
         super();
-        workers = new ArrayList<>();
+
     }
 
 
     public void search(String url) throws IOException {
+//        setChanged();
+//        notifyObservers(new Payload(TITLE,"Example Domain"));
 
         baseUrl =url ;
         Finder finder = new Finder(url);
 
+
         Optional<String> page = finder.getPage();
+
 
         if (page.isEmpty())
             return;
+
 
         Optional<String> title = finder.findTitle(page.get());
         if (title.isEmpty())
@@ -67,7 +72,7 @@ public class LinksControl extends Observable {
 
         Pattern linkPattern = Pattern.compile("<a.*\\s+href=(\"|\')(.+?)\\1\\s*.*>");
         Matcher matcher = linkPattern.matcher(page);
-        List<String> results = new ArrayList<>();
+
 
         while (matcher.find()) {
 
@@ -82,9 +87,13 @@ public class LinksControl extends Observable {
 
             String protocol = url.getProtocol();
             String base = url.getHost();
+            setChanged();
 
             if (!isValidUrl(link)) {
-
+                if(baseUrl.contains("localhost")){
+                    int id =baseUrl.lastIndexOf("/");
+                    link = baseUrl.substring(0,id)+ "/" + link;
+                }
                 if(link.startsWith("//")){
                     link = protocol +":"+ link;
                 }
@@ -97,9 +106,11 @@ public class LinksControl extends Observable {
 
             }
 
+
+
             FinderWorker worker = new FinderWorker(link);
             worker.execute();
-            workers.add(worker);
+
         }
 
 
@@ -125,7 +136,7 @@ public class LinksControl extends Observable {
         @Override
         protected EntityUrl doInBackground() throws Exception {
 
-                Optional<String> result = finder.run();
+                Optional<String> result  = finder.run();
 
                 if (result.isPresent()) {
 

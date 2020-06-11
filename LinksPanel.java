@@ -8,9 +8,10 @@ public class LinksPanel extends JPanel {
     private final JLabel titleField;
     private final JLabel titleLabel;
 
+
     public LinksPanel() {
         super();
-       // setLayout(new FlowLayout(FlowLayout.LEFT));
+       setLayout(new FlowLayout(FlowLayout.LEFT));
         titleLabel = new JLabel("Title: ");
 
         add(titleLabel);
@@ -21,13 +22,18 @@ public class LinksPanel extends JPanel {
         titleField.setName("TitleLabel");
         add(titleField);
         titleField.setPreferredSize(new Dimension(150, 50));
+
     }
 
     public void setTitle(String title){
-        titleField.setText( title.trim());
+        titleField.setText(title.trim());
     }
 
     public void reset() {
         titleField.setText("");
     }
+
+
+
+
 }

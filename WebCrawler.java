@@ -34,9 +34,11 @@ public class WebCrawler extends JFrame implements Observer {
         controlPanel.setTextEmitter( e -> {
 
             try {
-                linksPanel.reset();
                 tablePanel.reset();
+
+
                 linksControl.search(e);
+
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -77,11 +79,14 @@ public class WebCrawler extends JFrame implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
+
+
        if (o instanceof  Payload ) {
            Payload payload = (Payload) o;
            if (payload.getDataType() == DataType.TITLE) {
                linksPanel.setTitle(payload.getData());
            }
+
        }
 
        if (o instanceof EntityUrl){

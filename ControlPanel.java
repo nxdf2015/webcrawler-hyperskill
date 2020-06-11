@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ControlPanel extends JPanel {
+    private final JLabel label;
     private JTextField input;
     private JButton urlBtn;
     private TextEmitter textEmitter;
@@ -17,7 +18,8 @@ public class ControlPanel extends JPanel {
 
          setPreferredSize(new Dimension(500, 50));
          setLayout(new FlowLayout(FlowLayout.LEFT));
-         add(new JLabel("URL: "));
+         label = new JLabel("URL: ");
+         add(label);
          input=new JTextField();
          input.setName("UrlTextField");
          input.setPreferredSize(new Dimension(300, 45));
@@ -30,7 +32,7 @@ public class ControlPanel extends JPanel {
         urlBtn.addActionListener(null);
         urlBtn.setName("RunButton");
         urlBtn.addActionListener(e -> {
-
+            label.setText("button click!");
             if (textEmitter!=null)
                 textEmitter.send(input.getText());
         });
